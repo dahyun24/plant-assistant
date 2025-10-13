@@ -1,3 +1,4 @@
+@ -1,79 +0,0 @@
 # 1️⃣ 필수 라이브러리 설치
 # !pip install langchain-huggingface langchain-milvus pymilvus tqdm
 
