@@ -34,7 +34,7 @@
 ### (1) Embedding 단계
 - **텍스트 정보** → Huggingface Embedding model
 - **이미지 데이터** → Gemini API로 캡션 생성 후 텍스트 임베딩
-- **센서 데이터** → TabNet (또는 문자열 변환 후 임베딩)  
+- **센서 데이터** → 센서값 그대로 벡터화  
 
 ### (2) 저장소 구조
 - **Combined Vector Store**: 텍스트 + 이미지 요약을 같은 공간에 저장  
@@ -45,7 +45,6 @@
 - 질의 유형에 따라 modality별 가중치 조정  
   - 예: 환경 관련 → 센서 벡터 강화  
   - 예: 증상 관련 → 이미지 요약 강화  
-- 추후 Cross-Encoder reranker 확장 가능  
 
 ### (4) Fusion
 - 초기: 단순 **score aggregation (가중치 합산)**  
@@ -60,7 +59,7 @@
 [Embedding 단계]
    - 텍스트: hugging face model
    - 이미지: 캡션 생성 → 텍스트 임베딩
-   - 센서: TabNet 또는 텍스트화
+   - 센서: 센서값 그대로 벡터화
    ↓
 [저장 단계]
    - Combined Vector Store (텍스트 + 이미지 요약)
@@ -144,3 +143,42 @@
 * **센서**: `sensor` 키의 수치값들을 TabNet을 통해 latent vector로 변환
 * **멀티벡터 구조**: 하나의 문서(`json`)에 대해 텍스트·이미지·센서 벡터를 동시에 저장
 
+---
+
+## 7. Pipeline
+```
+사용자 입력 (이미지 + 텍스트)
+        │
+        ▼
+1️⃣ 이미지 캡션 생성 (Gemini API)
+   └─ 이미지에서 식물의 상태를 자연어로 요약
+      (예: "잎 끝이 갈색이고 잎이 처져 있음")
+        │
+        ▼
+2️⃣ 쿼리 구성
+   ├─ 사용자 텍스트 + 이미지 캡션 결합
+   │   예: "보스턴고사리 잎이 말라가요. (이미지: 잎 끝이 갈색이고 처져 있음)"
+   └─ HuggingFace(BGE-m3-ko) 임베딩 → text_vector(1024D)
+        │
+        ▼
+3️⃣ Milvus 검색
+   ├─ Step1: 같은 식물 중 “유사한 환경(문장 유사도)” 상위 K개  
+   ├─ Step2: 같은 식물 중 “High 성장” 사례 K개  
+   ├─ Step3: 같은 식물 중 “Low/DIE 성장” 사례 K개  
+        │
+        ▼
+4️⃣ 환경 평균 계산
+   - 각 그룹의 `sensor_vector` 평균 계산  
+   - 출력: `current_avg`, `high_avg`, `low_avg`
+        │
+        ▼
+5️⃣ Reasoning (LLM)
+   LLM 입력 구성 요소:
+   ① 사용자 입력 텍스트  
+   ② 이미지 캡션(Gemini)  
+   ③ 세 그룹의 센서 평균표 (`current_avg`, `high_avg`, `low_avg`)
+        │
+        ▼
+6️⃣ LLM 출력
+   🌿 “현재 상태 요약 + 더 잘 자란/못 자란 환경 비교 + 개선 조언” 생성
+```
