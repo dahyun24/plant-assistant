@@ -1,0 +1,17 @@
+package cse.plant_care_chatbot.global.common.code;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+
+@Getter
+@RequiredArgsConstructor
+public enum SuccessCode implements BaseCode {
+
+    // health_check
+    HEALTH_CHECK_SUCCESS(HttpStatus.OK, "🌱 서버가 정상적으로 작동 중입니다."),
+    ;
+
+    private final HttpStatus httpStatus;
+    private final String message;
+}
