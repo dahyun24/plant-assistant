@@ -10,6 +10,7 @@ public enum SuccessCode implements BaseCode {
 
     // health_check
     HEALTH_CHECK_SUCCESS(HttpStatus.OK, "🌱 서버가 정상적으로 작동 중입니다."),
+    PLANT_ANALYSIS_SUCCESS(HttpStatus.OK, "식물 분석을 성공적으로 완료하였습니다.")
     ;
 
     private final HttpStatus httpStatus;

@@ -22,7 +22,8 @@ configurations {
 
 repositories {
 	mavenCentral()
-}
+	maven { url "https://repo.spring.io/milestone" }
+	maven { url "https://repo.spring.io/snapshot" }}
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -33,6 +34,14 @@ dependencies {
 
 	// swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+
+	// Milvus Java SDK (벡터 DB 연결)
+	implementation 'io.milvus:milvus-sdk-java:2.4.0'
+
+	// 1. HTTP 통신 (Gemini API 호출용)
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	implementation "io.netty:netty-resolver-dns-native-macos:4.1.107.Final:osx-aarch_64"
 }
 
 tasks.named('test') {
