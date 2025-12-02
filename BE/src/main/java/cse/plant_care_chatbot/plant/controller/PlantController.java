@@ -68,6 +68,7 @@ public class PlantController {
                 geminiRes.plantName(),
                 geminiRes.growthLevel(),
                 geminiRes.caption(),
+                safeDesc,
                 similarImages,
                 sensorAnalysis
         );

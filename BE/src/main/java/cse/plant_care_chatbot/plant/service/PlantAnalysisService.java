@@ -29,7 +29,7 @@ public class PlantAnalysisService {
 
     private final ObjectMapper objectMapper;
 
-    public PlantReportRes generateReport(String plantName, String growthLevel, String caption,
+    public PlantReportRes generateReport(String plantName, String growthLevel, String caption, String userDescription,
                                          List<String> similarImages, List<SensorComparisonRes> sensorData) {
 
         // 1. 점수 계산
@@ -42,7 +42,7 @@ public class PlantAnalysisService {
         List<SensorComparisonRes> topIssues = findTopIssues(sensorData);
 
         // 4. Gemini에게 조언 요청 (구조화된 응답 요청)
-        GeminiResponse llmResponse = askGeminiForAdvice(plantName, growthLevel, caption, sensorData, topIssues);
+        GeminiResponse llmResponse = askGeminiForAdvice(plantName, growthLevel, caption, userDescription, sensorData, topIssues);
 
         return new PlantReportRes(
                 plantName,
@@ -60,10 +60,10 @@ public class PlantAnalysisService {
     // 아래 코드를 복사해서 덮어쓰세요.
 
     // --- [로직 4] Gemini API 호출 ---
-    private GeminiResponse askGeminiForAdvice(String plantName, String level, String caption,
+    private GeminiResponse askGeminiForAdvice(String plantName, String level, String caption, String userDescription,
                                               List<SensorComparisonRes> allSensors,
                                               List<SensorComparisonRes> topIssues) {
-        String prompt = createSystemPrompt(plantName, level, caption, allSensors, topIssues);
+        String prompt = createSystemPrompt(plantName, level, caption, userDescription, allSensors, topIssues);
 
         Map<String, Object> requestBody = Map.of(
                 "contents", List.of(Map.of("parts", List.of(Map.of("text", prompt))))
@@ -96,7 +96,7 @@ public class PlantAnalysisService {
         }
     }
 
-    private String createSystemPrompt(String plantName, String level, String caption,
+    private String createSystemPrompt(String plantName, String level, String caption, String userDescription,
                                       List<SensorComparisonRes> allSensors,
                                       List<SensorComparisonRes> issues) {
         StringBuilder sensorInfo = new StringBuilder();
@@ -122,6 +122,10 @@ public class PlantAnalysisService {
             Name: %s, Health Level: %s
             Visual Symptoms: %s
 
+            [User Query/Description]
+            %s
+            (Please consider the user's specific situation or question in your analysis if provided.)
+            
             [Environmental Data Analysis]
             %s
 
@@ -150,7 +154,7 @@ public class PlantAnalysisService {
                 ]
             }
             Output ONLY the JSON object.
-            """.formatted(plantName, level, caption, sensorInfo, issueInfo);
+            """.formatted(plantName, level, caption, userDescription, sensorInfo, issueInfo);
     }
 
     private GeminiResponse parseGeminiResponse(String response) {
