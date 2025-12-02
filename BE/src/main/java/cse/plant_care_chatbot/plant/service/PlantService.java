@@ -22,10 +22,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PlantService {
 
-    @Value("${gemini.api.key}") // application.properties에 설정 필요
+    @Value("${gemini.api.key}")
     private String geminiApiKey;
 
-    @Value("${gemini.api.url}") // https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent
+    @Value("${gemini.api.url}")
     private String geminiApiUrl;
 
     private final ObjectMapper objectMapper;
