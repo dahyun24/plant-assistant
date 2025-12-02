@@ -69,12 +69,12 @@ public class PlantService {
     private String getSystemPrompt() {
         return """
                 Analyze the plant in this image and extract the following information in JSON format:
-                1. 'plantName': Identify the specific plant name in Korean (e.g., 보스턴고사리, 스파티필럼, 스투키).
-                2. 'growthLevel': Estimate the growth stage as one of ['High', 'Medium', 'Low', 'Die'].
+                1. 'plantName': Identify the specific plant name in Korean. **You MUST choose ONLY between '보스턴고사리' and '스파티필럼'.** Do not output any other plant name.                
+                2. 'growthLevel': Estimate the growth stage as one of ['High', 'Medium', 'Low', 'DIE'].
                    - 'High': Healthy, lush, vibrant green.
                    - 'Medium': Average condition, minor issues.
                    - 'Low': Visible wilting, discoloration, poor health.
-                   - 'Die': Dead or dying.
+                   - 'DIE': Dead or dying.
                 3. 'caption': A detailed description of the plant's visual health status in Korean. Focus on leaf color, drooping, and vitality.
                 
                 Output ONLY the JSON object. Do not include markdown code blocks.
