@@ -1,10 +1,7 @@
 package cse.plant_care_chatbot.plant.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cse.plant_care_chatbot.plant.dto.GeminiAnalysisResult;
-import cse.plant_care_chatbot.plant.dto.HistoryListRes;
-import cse.plant_care_chatbot.plant.dto.PlantReportRes;
-import cse.plant_care_chatbot.plant.dto.SensorComparisonRes;
+import cse.plant_care_chatbot.plant.dto.*;
 import cse.plant_care_chatbot.plant.entity.PlantAnalysisLog;
 import cse.plant_care_chatbot.plant.repository.PlantAnalysisLogRepository;
 import cse.plant_care_chatbot.plant.service.GeminiEmbeddingService;
@@ -69,6 +66,7 @@ public class PlantController {
 
         // 3️⃣ Step 3: 최종 리포트 생성 (점수 계산 + 상세 가이드)
         PlantReportRes finalReport = reportService.generateReport(
+                log.getId(),
                 geminiRes.plantName(),
                 geminiRes.growthLevel(),
                 geminiRes.caption(),
@@ -113,5 +111,14 @@ public class PlantController {
         PlantReportRes result = objectMapper.readValue(log.getAnalysisResult(), PlantReportRes.class);
 
         return CommonResponse.success(SuccessCode.PLANT_ANALYSIS_SUCCESS, result);
+    }
+
+    @PatchMapping("/history/{logId}/feedback")
+    public CommonResponse<Void> addFeedback(
+            @PathVariable Long logId,
+            @RequestBody PlantFeedbackReq feedbackReq
+    ) {
+        plantService.addFeedback(logId, feedbackReq);
+        return CommonResponse.success(SuccessCode.PLANT_FEEDBACK_SUCCESS);
     }
 }

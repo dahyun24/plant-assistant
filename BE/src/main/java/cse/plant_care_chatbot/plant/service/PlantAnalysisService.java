@@ -29,7 +29,7 @@ public class PlantAnalysisService {
 
     private final ObjectMapper objectMapper;
 
-    public PlantReportRes generateReport(String plantName, String growthLevel, String caption, String userDescription,
+    public PlantReportRes generateReport(Long logId, String plantName, String growthLevel, String caption, String userDescription,
                                          List<String> similarImages, List<SensorComparisonRes> sensorData) {
 
         // 1. 점수 계산
@@ -45,6 +45,7 @@ public class PlantAnalysisService {
         GeminiResponse llmResponse = askGeminiForAdvice(plantName, growthLevel, caption, userDescription, sensorData, topIssues);
 
         return new PlantReportRes(
+                logId,
                 plantName,
                 overallScore,
                 metricScores,
@@ -196,7 +197,7 @@ public class PlantAnalysisService {
             double current = sensor.similarAvg() != null ? sensor.similarAvg() : 0;
             double ideal = sensor.betterAvg() != null ? sensor.betterAvg() : current;
             double diffRatio = (ideal == 0) ? 0 : Math.abs(current - ideal) / ideal;
-            int score = (int) Math.max(0, 100 - (diffRatio * 100 * 1.5));
+            int score = (int) Math.max(20, 100 - (diffRatio * 100 * 1.5));
             String status = "적정";
             if (score < 80) status = (current < ideal) ? "부족" : "과다";
             scores.add(new PlantReportRes.MetricScore(sensor.sensorName(), score, status));

@@ -1,5 +1,6 @@
 package cse.plant_care_chatbot.plant.entity;
 
+import cse.plant_care_chatbot.plant.dto.FeedbackType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,6 +32,14 @@ public class PlantAnalysisLog {
 
     private String originalImageUrl;
 
+    @Enumerated(EnumType.STRING)
+    private FeedbackType feedbackType;
+
+    @Column(columnDefinition = "TEXT")
+    private String feedbackComment;
+
+    private LocalDateTime feedbackDate;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
@@ -46,5 +55,11 @@ public class PlantAnalysisLog {
 
     public void updateResult(String analysisResult) {
         this.analysisResult = analysisResult;
+    }
+
+    public void updateFeedback(FeedbackType feedbackType, String feedbackComment) {
+        this.feedbackType = feedbackType;
+        this.feedbackComment = feedbackComment;
+        this.feedbackDate = LocalDateTime.now();
     }
 }

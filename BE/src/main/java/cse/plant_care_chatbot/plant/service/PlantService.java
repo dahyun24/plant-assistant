@@ -3,11 +3,15 @@ package cse.plant_care_chatbot.plant.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cse.plant_care_chatbot.plant.dto.GeminiAnalysisResult;
+import cse.plant_care_chatbot.plant.dto.PlantFeedbackReq;
+import cse.plant_care_chatbot.plant.entity.PlantAnalysisLog;
+import cse.plant_care_chatbot.plant.repository.PlantAnalysisLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +33,7 @@ public class PlantService {
     private String geminiApiUrl;
 
     private final ObjectMapper objectMapper;
+    private final PlantAnalysisLogRepository logRepo;
 
     public GeminiAnalysisResult analyzePlant(MultipartFile image, String description) throws IOException {
         String base64Image = Base64.getEncoder().encodeToString(image.getBytes());
@@ -64,6 +69,14 @@ public class PlantService {
                 .body(String.class);
 
         return parseGeminiResponse(response);
+    }
+
+    @Transactional
+    public void addFeedback(Long logId, PlantFeedbackReq req) {
+        PlantAnalysisLog log = logRepo.findById(logId)
+                .orElseThrow(() -> new RuntimeException("해당 분석 기록을 찾을 수 없습니다."));
+
+        log.updateFeedback(req.feedbackType(), req.comment());
     }
 
     private String getSystemPrompt() {

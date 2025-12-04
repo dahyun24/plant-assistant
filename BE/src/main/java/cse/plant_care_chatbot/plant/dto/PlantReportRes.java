@@ -3,6 +3,7 @@ package cse.plant_care_chatbot.plant.dto;
 import java.util.List;
 
 public record PlantReportRes(
+        Long logId,
         String plantName,
         // 1. 전체 건강도 점수 (0~100)
         int overallScore,
