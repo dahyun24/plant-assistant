@@ -18,18 +18,33 @@ public class PlantAnalysisLog {
 
     private String plantName;
 
-    private String growthLevel; // High, Medium, Low, Die
+    private String growthLevel;
 
     @Column(columnDefinition = "TEXT")
     private String caption;
+
+    @Column(columnDefinition = "TEXT")
+    private String userDescription;
+
+    @Column(columnDefinition = "LONGTEXT")
+    private String analysisResult;
+
+    private String originalImageUrl;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
     @Builder
-    public PlantAnalysisLog(String plantName, String growthLevel, String caption) {
+    public PlantAnalysisLog(String plantName, String growthLevel, String caption, String userDescription, String analysisResult, String originalImageUrl) {
         this.plantName = plantName;
         this.growthLevel = growthLevel;
         this.caption = caption;
+        this.userDescription = userDescription;
+        this.analysisResult = analysisResult;
+        this.originalImageUrl = originalImageUrl;
+    }
+
+    public void updateResult(String analysisResult) {
+        this.analysisResult = analysisResult;
     }
 }
