@@ -41,3 +41,15 @@ export interface HistoryListResponse {
   message: string;
   result: HistoryItem[];
 }
+
+export interface PlantAnalysisResultData {
+  logId: number;
+  plantName: string;
+  overallScore: number;
+  metricScores: MetricScore[];
+  caption: string;
+  analysis: string;
+  keywords: string[];
+  careGuide: CareGuide[];
+  similarImages: string[];
+}

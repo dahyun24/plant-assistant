@@ -1,10 +1,14 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Droplets, Sun, Thermometer, AlertCircle, Leaf, Cloud, TrendingUp, Wind, Sprout } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { ArrowLeft, Droplets, Sun, Thermometer, AlertCircle, Leaf, Cloud, TrendingUp, Wind, Sprout, ThumbsUp, Minus, ThumbsDown} from "lucide-react"
 import { PlantAnalysisResultData, MetricScore } from "@/types/plant"
+import { toast } from "sonner"
 
 interface PlantAnalysisResultProps {
   data: PlantAnalysisResultData
@@ -24,7 +28,43 @@ const SENSOR_MAP: Record<string, { label: string; icon: any; color: string }> = 
 }
 
 export default function PlantAnalysisResult({ data, onReset }: PlantAnalysisResultProps) {
-  
+  const [feedbackType, setFeedbackType] = useState<string | null>(null)
+  const [feedbackComment, setFeedbackComment] = useState("")
+  const [isFeedbackSubmitting, setIsFeedbackSubmitting] = useState(false)
+  const [isFeedbackSubmitted, setIsFeedbackSubmitted] = useState(false)
+
+  const handleFeedbackSubmit = async () => {
+      if (!feedbackType) {
+          toast.error("결과(호전됨/유지/악화)를 선택해주세요.")
+          return
+      }
+
+      setIsFeedbackSubmitting(true)
+      try {
+          // 백엔드 API 호출 (PATCH)
+          const response = await fetch(`/api/proxy/v1/plants/history/${data.logId}/feedback`, {
+              method: "PATCH",
+              headers: {
+                   "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              feedbackType: feedbackType, // "IMPROVED", "NO_CHANGE", "WORSENED"
+              comment: feedbackComment
+            }),
+        })
+
+        if (!response.ok) throw new Error("전송 실패")
+
+        toast.success("피드백이 등록되었습니다! 감사합니다.")
+        setIsFeedbackSubmitted(true)
+    } catch (error) {
+        console.error(error)
+        toast.error("피드백 등록 중 오류가 발생했습니다.")
+    } finally {
+          setIsFeedbackSubmitting(false)
+    }
+  }
+
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8">
       {/* Header */}
@@ -161,6 +201,77 @@ export default function PlantAnalysisResult({ data, onReset }: PlantAnalysisResu
             ))}
           </div>
         </Card>
+      </div>
+      
+    <div className="mb-8 mt-12">
+                <h2 className="mb-4 text-2xl font-bold text-foreground">결과 피드백</h2>
+                <Card className="border-2 p-6 bg-muted/20">
+                    {!isFeedbackSubmitted ? (
+                        <div className="space-y-4">
+                            <p className="text-sm text-muted-foreground mb-4">
+                                이 분석과 가이드를 따라한 후, 식물의 상태가 어떻게 변했나요? 
+                                여러분의 데이터가 더 정확한 AI를 만듭니다.
+                            </p>
+                            
+                            <div className="grid grid-cols-3 gap-3 mb-4">
+                                <Button 
+                                    variant={feedbackType === "IMPROVED" ? "default" : "outline"} 
+                                    className="h-20 flex flex-col gap-2"
+                                    onClick={() => setFeedbackType("IMPROVED")}
+                                >
+                                    <ThumbsUp className="h-6 w-6" />
+                                    <span>좋아졌어요</span>
+                                </Button>
+                                <Button 
+                                    variant={feedbackType === "NO_CHANGE" ? "default" : "outline"} 
+                                    className="h-20 flex flex-col gap-2"
+                                    onClick={() => setFeedbackType("NO_CHANGE")}
+                                >
+                                    <Minus className="h-6 w-6" />
+                                    <span>변화 없음</span>
+                                </Button>
+                                <Button 
+                                    variant={feedbackType === "WORSENED" ? "default" : "outline"} 
+                                    className="h-20 flex flex-col gap-2"
+                                    onClick={() => setFeedbackType("WORSENED")}
+                                >
+                                    <ThumbsDown className="h-6 w-6" />
+                                    <span>나빠졌어요</span>
+                                </Button>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="feedback-comment">상세 후기 (선택)</Label>
+                                <Textarea 
+                                    id="feedback-comment" 
+                                    placeholder="어떤 조언이 도움이 되었나요? 혹은 어떤 점이 아쉬웠나요?"
+                                    value={feedbackComment}
+                                    onChange={(e) => setFeedbackComment(e.target.value)}
+                                    className="resize-none bg-white"
+                                />
+                            </div>
+
+                            <div className="flex justify-end">
+                                <Button 
+                                    onClick={handleFeedbackSubmit} 
+                                    disabled={isFeedbackSubmitting || !feedbackType}
+                                >
+                                    {isFeedbackSubmitting ? "등록 중..." : "피드백 등록하기"}
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="py-8 text-center text-muted-foreground">
+                            <div className="flex justify-center mb-2">
+                                <div className="rounded-full bg-green-100 p-3 text-green-600">
+                                    <ThumbsUp className="h-6 w-6" />
+                                </div>
+                            </div>
+                            <h3 className="text-lg font-semibold text-foreground">소중한 의견 감사합니다!</h3>
+                            <p className="text-sm">보내주신 피드백은 서비스 개선에 활용됩니다.</p>
+                        </div>
+                    )}
+                </Card>
       </div>
 
       {/* Action Button */}
