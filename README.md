@@ -12,7 +12,7 @@
 
 - [**Google DeepMind 연구: On the Theoretical Limitations of Embedding-Based Retrieval**](https://arxiv.org/pdf/2508.21038)
   - 단일 벡터(single vector) 표현은 retrieval 과정에서 중요한 정보를 잃게 됨을 지적  
-  - 문서를 **여러 벡터(multi-vector)**로 표현하는 Retrieval 방식을 제안  
+  - 문서를 여러 벡터(multi-vector)로 표현하는 Retrieval 방식을 제안  
 
 - [**Beyond Text: Optimizing RAG with Multimodal Inputs for Industrial Applications**](https://arxiv.org/abs/2410.21943)
   - 이미지 처리 전략 비교  
@@ -75,7 +75,6 @@
 ### 📦 Dataset Name
 
 **원예식물 화분류 물주기·수분공급 주기 생육데이터**
-(Data on horticultural plants growth according to watering cycle)
 <br>
 출처: [AI Hub (원예식물(화분류) 물주기(수분공급 주기) 생육 데이터)](https://www.aihub.or.kr/aihubdata/data/view.do?pageIndex=1&currMenu=115&topMenu=100&srchOptnCnd=OPTNCND001&searchKeyword=&srchDetailCnd=DETAILCND001&srchOrder=ORDER001&srchPagePer=20&srchDataRealmCode=REALM004&aihubDataSe=data&dataSetSn=71705)
 
